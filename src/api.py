@@ -24,7 +24,7 @@ def delete_index():
 def get_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        return "Error: URL NOT FOUND", 404
+        return "Error: URL id NOT FOUND", 404
     return url, 301
 
 @app.route('/', methods=["POST"])
@@ -48,7 +48,25 @@ def post_url():
 def delete_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        return "Error: URL NOT FOUND", 404
+        return "Error: URL id NOT FOUND", 404
     else:
         apiHandler.delete_url(url_id)
         return "Content deleted", 204
+
+@app.route('/<string:url_id>', methods=["PUT"])
+@cross_origin()
+def uodate_url(url_id):
+    url = apiHandler.get_url(url_id)
+    if url == None:
+        return "Error: URL id NOT FOUND", 404
+    
+    get_data=request.args
+    get_dict = get_data.to_dict()
+    url = get_dict['url']
+
+    if apiHandler.verify_url(url):
+        apiHandler.edit_url(url_id, url)
+        return "URL Updated", 200
+    else:
+        return "Invalid URL to update", 400
+        
