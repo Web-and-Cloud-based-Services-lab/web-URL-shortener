@@ -17,7 +17,6 @@ def index():
 def post_outlet():
     if request.method == 'POST':
         get_data=request.args
-        apiHandler.create_url(get_data.to_dict())
-        
+        response = apiHandler.create_url(get_data.to_dict())
 
-    return 'insert successfully'
+    return response
