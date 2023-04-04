@@ -36,8 +36,11 @@ class ApiHandler(object):
         url_object = re.compile(url_pattern)
         # check the validation of the url
         if(re.search(url_object, url)):
+            print(url, "is valid")
             return True
         else:
+            print(url, "is not valid")
             return False
+            
 
 apiHandler = ApiHandler()
