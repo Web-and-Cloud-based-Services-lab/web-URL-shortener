@@ -14,6 +14,13 @@ def get_keys():
     keys = apiHandler.get_keys()
     return keys
 
+@app.route('/<string:url_id>', methods=["GET"])
+def get_url(url_id):
+    url = apiHandler.get_url(url_id)
+    if url == None:
+        return "URL not found", 404
+    return url, 301
+
 @app.route('/', methods=["POST"])
 def post_url():
     if request.method == 'POST':
@@ -29,6 +36,4 @@ def post_url():
         else:
             return "Invalid URL", 400
 
-@app.route('/<string:url_id>', methods=["GET"])
-def get_url(url_id):
-    return "get : "+ url_id, 301
+
