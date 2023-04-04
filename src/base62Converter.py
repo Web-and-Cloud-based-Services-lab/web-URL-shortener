@@ -7,6 +7,9 @@ class base62Converter:
         self.base62_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   
     def base10ToBase62(self, base10):
+        if base10 == 0:
+            return "0"
+        
         tmp = ""
         while base10 > 0:
             # take the modulo of the remaining base10 as the index to map a corresponding base62 character
@@ -19,6 +22,9 @@ class base62Converter:
         return base62
 
     def base62ToBase10(self, base62):
+        if base62 == "0":
+            return 0
+        
         base10 = 0
         # for every character of the base62, calculate the corresponding base10 value and add them up
         for idx, char in enumerate(base62):
@@ -32,9 +38,8 @@ class base62Converter:
 
 if __name__ == "__main__":
     converter = base62Converter()
-    id = 123456666666
+    id = 0
     short = converter.base10ToBase62(id)
     print("short: ", short)
     long = converter.base62ToBase10(short)
     print("long: ", long)
-
