@@ -6,7 +6,7 @@ class IdController(object):
     def has_vacancy(self):
         return len(self.vacancies) != 0
     
-    def get_id(self):
+    def generate_id(self):
         res = 0
         if self.has_vacancy():
             res = min(self.vacancies)

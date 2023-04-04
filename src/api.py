@@ -10,8 +10,16 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/')
 @cross_origin()
-def index():
-    return "Server Connected"
+def get_keys():
+    keys = apiHandler.get_keys()
+    return keys
+
+@app.route('/<string:url_id>', methods=["GET"])
+def get_url(url_id):
+    url = apiHandler.get_url(url_id)
+    if url == None:
+        return "URL not found", 404
+    return url, 301
 
 @app.route('/', methods=["POST"])
 def post_url():
@@ -20,11 +28,12 @@ def post_url():
         get_dict = get_data.to_dict()
         url = get_dict['url']
         if(apiHandler.verify_url(url)):
+            if(apiHandler.detect_duplicates(url)):
+                return "URL already exists", 400
+            
             response = apiHandler.create_url(url)
             return response, 201
         else:
             return "Invalid URL", 400
 
-@app.route('/<string:url_id>', methods=["GET"])
-def get_url(url_id):
-    return "get : "+ url_id, 301
+
