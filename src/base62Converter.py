@@ -7,6 +7,10 @@ class Base62Converter:
         self.base62_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   
     def encode(self, base10):
+        # solve the edge case
+        if base10 == 0:
+            return "a"
+        
         tmp = ""
         while base10 > 0:
             # take the modulo of the remaining base10 as the index to map a corresponding base62 character
@@ -15,10 +19,14 @@ class Base62Converter:
             # update the remaining base10
             base10 //= 62
         # reverse the tmp to fetch the correct base62 because the encoding of base62 is done in a revsersed order
-        base62 = tmp[len(tmp)::-1]
+        base62 = tmp[::-1]
         return base62
 
     def decode(self, base62):
+        # solve the edge case
+        if base62 == "a":
+            return 0
+        
         base10 = 0
         # for every character of the base62, calculate the corresponding base10 value and add them up
         for idx, char in enumerate(base62):
