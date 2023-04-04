@@ -20,7 +20,7 @@ $ docker pull mongo:4.4.6
 Run the following command to create a container
 
 ```bash
-$ docker run --name mongo -p 27017:27017 -d mongo:4.4.8
+$ docker run --name mongo -p 27017:27017 -d mongo:4.4.6
 ```
 
 #### Run the API
