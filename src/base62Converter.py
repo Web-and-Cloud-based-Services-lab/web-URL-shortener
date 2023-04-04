@@ -9,7 +9,7 @@ class base62Converter:
     def base10ToBase62(self, base10):
         # solve the edge case
         if base10 == 0:
-            return "0"
+            return "a"
         
         tmp = ""
         while base10 > 0:
@@ -24,7 +24,7 @@ class base62Converter:
 
     def base62ToBase10(self, base62):
         # solve the edge case
-        if base62 == "0":
+        if base62 == "a":
             return 0
         
         base10 = 0
@@ -40,9 +40,16 @@ class base62Converter:
 
 if __name__ == "__main__":
     converter = base62Converter()
-    id = 1111
-    short = converter.base10ToBase62(id)
-    print("short: ", short)
-    long = converter.base62ToBase10(short)
-    print("long: ", long)
+    # id = 1
+    # short = converter.base10ToBase62(id)
+    # print("short: ", short)
+    # long = converter.base62ToBase10(short)
+    # print("long: ", long)
+
+    passed_tests = True
+    for i in range(0, 1000000):
+        if not (i == converter.base62ToBase10(converter.base10ToBase62(i))):
+            print(i)
+            passed_tests = False
+    print(passed_tests)
 
