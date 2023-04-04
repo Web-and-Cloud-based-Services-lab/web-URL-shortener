@@ -7,6 +7,7 @@ class base62Converter:
         self.base62_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   
     def base10ToBase62(self, base10):
+        # solve the edge case
         if base10 == 0:
             return "0"
         
@@ -18,10 +19,11 @@ class base62Converter:
             # update the remaining base10
             base10 //= 62
         # reverse the tmp to fetch the correct base62 because the encoding of base62 is done in a revsersed order
-        base62 = tmp[len(tmp)::-1]
+        base62 = tmp[::-1]
         return base62
 
     def base62ToBase10(self, base62):
+        # solve the edge case
         if base62 == "0":
             return 0
         
@@ -38,8 +40,9 @@ class base62Converter:
 
 if __name__ == "__main__":
     converter = base62Converter()
-    id = 0
+    id = 1111
     short = converter.base10ToBase62(id)
     print("short: ", short)
     long = converter.base62ToBase10(short)
     print("long: ", long)
+
