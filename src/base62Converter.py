@@ -1,12 +1,12 @@
 # the implementation of this converter is based on the ideas and pseudocode provided by Marcel Jackwerth
 # reference: https://stackoverflow.com/questions/742013/how-do-i-create-a-url-shortener
 
-class base62Converter:
+class Base62Converter:
     def __init__(self):
         # the map that is used to encode base10 values to base62 characters
         self.base62_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   
-    def base10ToBase62(self, base10):
+    def encode(self, base10):
         # solve the edge case
         if base10 == 0:
             return "a"
@@ -22,7 +22,7 @@ class base62Converter:
         base62 = tmp[::-1]
         return base62
 
-    def base62ToBase10(self, base62):
+    def decode(self, base62):
         # solve the edge case
         if base62 == "a":
             return 0
@@ -38,18 +38,5 @@ class base62Converter:
             base10 += base62Index * (62 ** power)
         return base10
 
-if __name__ == "__main__":
-    converter = base62Converter()
-    # id = 1
-    # short = converter.base10ToBase62(id)
-    # print("short: ", short)
-    # long = converter.base62ToBase10(short)
-    # print("long: ", long)
-
-    passed_tests = True
-    for i in range(0, 1000000):
-        if not (i == converter.base62ToBase10(converter.base10ToBase62(i))):
-            print(i)
-            passed_tests = False
-    print(passed_tests)
+base62Converter = Base62Converter()
 
