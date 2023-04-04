@@ -14,10 +14,13 @@ def index():
     return "Server Connected"
 
 @app.route('/', methods=["POST"])
-def post_outlet():
+def post_url():
     if request.method == 'POST':
         get_data=request.args
-        apiHandler.create_url(get_data.to_dict())
-        
+        response = apiHandler.create_url(get_data.to_dict())
 
-    return 'insert successfully'
+    return response, 201
+
+@app.route('/<string:url_id>', methods=["GET"])
+def get_url(url_id):
+    return "get : "+ url_id, 301
