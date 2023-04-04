@@ -1,4 +1,5 @@
 import pymongo
+import re
 from idController import idController
 from base62Converter import base62Converter
 
@@ -41,9 +42,17 @@ class ApiHandler(object):
 
     # TODO: Implement this function!!
     def verify_url(self, url):
-        print("verify called: ", url)
-        if url == "a":
+        # set the regex pattern to validate url
+        url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+        # compile the regex pattern and returns a regex pattern object
+        url_object = re.compile(url_pattern)
+        # check the validation of the url
+        if(re.search(url_object, url)):
+            print(url, "is valid")
             return True
-        return False
+        else:
+            print(url, "is not valid")
+            return False
+            
 
 apiHandler = ApiHandler()
