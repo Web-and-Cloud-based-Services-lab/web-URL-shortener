@@ -43,6 +43,12 @@ class ApiHandler(object):
         id_origin = base62Converter.decode(short_id)
         idController.add_to_freelist(id_origin)
 
+    def edit_url(self, short_id, url):
+        query = { "short_id": short_id }
+        new_value = { "$set": { "url": url } }
+
+        self.collection_urls.update_one(query, new_value)
+
     def format_short_url(self, id, url):
         http_format = url.split('://', 1)[0]
         return http_format + "://" + id + ".com" 
