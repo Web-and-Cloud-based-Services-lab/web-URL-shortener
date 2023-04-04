@@ -37,6 +37,12 @@ class ApiHandler(object):
 
         return id_encoded
 
+    def delete_url(self, short_id):
+        query = { "short_id": short_id }
+        self.collection_urls.delete_one(query)
+        id_origin = base62Converter.decode(short_id)
+        idController.add_to_freelist(id_origin)
+
     def format_short_url(self, id, url):
         http_format = url.split('://', 1)[0]
         return http_format + "://" + id + ".com" 
