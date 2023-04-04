@@ -17,9 +17,13 @@ def index():
 def post_url():
     if request.method == 'POST':
         get_data=request.args
-        response = apiHandler.create_url(get_data.to_dict())
-
-    return response, 201
+        get_dict = get_data.to_dict()
+        url = get_dict['url']
+        if(apiHandler.verify_url(url)):
+            response = apiHandler.create_url(url)
+            return response, 201
+        else:
+            return "Invalid URL", 400
 
 @app.route('/<string:url_id>', methods=["GET"])
 def get_url(url_id):

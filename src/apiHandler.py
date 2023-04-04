@@ -15,15 +15,10 @@ class ApiHandler(object):
         for collect in collections:
             print(collect)
 
-    def create_url(self, data):
-        url = data['url']
-        if self.verify_url(url):
-            print("url is valid")
-        else:
-            print("url is not valid")
-        id_encoded = self.get_id()
-        url_formated = self.format_short_url(id_encoded, url)
+    def create_url(self, url):
 
+        id_encoded = self.get_id()
+        # url_formated = self.format_short_url(id_encoded, url)
         data = {'short_id': id_encoded, 'url': url}
         self.collection_urls.insert_one(data)
 
@@ -40,19 +35,12 @@ class ApiHandler(object):
         print("encoded id: ", id_encoded)
         return id_encoded
 
-    # TODO: Implement this function!!
     def verify_url(self, url):
         # set the regex pattern to validate url
         url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
         # compile the regex pattern and returns a regex pattern object
         url_object = re.compile(url_pattern)
         # check the validation of the url
-        if(re.search(url_object, url)):
-            print(url, "is valid")
-            return True
-        else:
-            print(url, "is not valid")
-            return False
-            
+        return re.search(url_object, url)            
 
 apiHandler = ApiHandler()
