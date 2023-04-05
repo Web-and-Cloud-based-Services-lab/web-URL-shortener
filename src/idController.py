@@ -14,7 +14,6 @@ class IdController(object):
         for document in documents:
             ids.append(document['original_id'])
         if len(ids) != 0:
-            print("ids in db: ", ids)
             self.next = max(ids) + 1
             print("init next: ", self.next)
             self.freelist = self.generate_freelist(ids)

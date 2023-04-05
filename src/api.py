@@ -1,3 +1,6 @@
+# Flask library is used to route APIs
+# Reference: https://flask.palletsprojects.com/en/2.2.x/quickstart/
+
 from flask import Flask
 from flask import request
 from flask_cors import CORS, cross_origin

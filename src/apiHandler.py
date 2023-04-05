@@ -1,6 +1,7 @@
 import pymongo
 import json
 import re
+from tqdm import tqdm
 from dbClient import mongo_client
 from idController import idController
 from base62Converter import base62Converter
@@ -16,7 +17,6 @@ class ApiHandler(object):
         keys = []
         for document in documents:
           keys.append(document['short_id'])
-        print(keys)
         
         return json.dumps(keys, indent=2, ensure_ascii=False)
 
@@ -43,13 +43,14 @@ class ApiHandler(object):
     
     def create_many_urls(self, urls):
         data = []
-        for url in urls:
+        # tqdm is a library to show progress bar
+        # reference: https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script
+        for url in tqdm(urls):
             if self.verify_url(url):
                 if not self.detect_duplicates(url):
                     id_origin = idController.generate_id()
                     id_encoded = base62Converter.encode(id_origin)
                     data.append({'original_id': id_origin, 'short_id': id_encoded, 'url': url})
-        print("inserted urls: ", data)
         if len(data) != 0:
             self.collection_urls.insert_many(data)        
 
