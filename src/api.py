@@ -65,6 +65,8 @@ def uodate_url(url_id):
     url = get_dict['url']
 
     if apiHandler.verify_url(url):
+        if(apiHandler.detect_duplicates(url)):
+            return "Error: URL already exists", 400
         apiHandler.edit_url(url_id, url)
         return "URL Updated", 200
     else:

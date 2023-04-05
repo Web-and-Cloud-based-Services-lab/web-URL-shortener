@@ -40,6 +40,18 @@ class ApiHandler(object):
         self.collection_urls.insert_one(data)
 
         return id_encoded
+    
+    def create_many_urls(self, urls):
+        data = []
+        for url in urls:
+            if self.verify_url(url):
+                if not self.detect_duplicates(url):
+                    id_origin = idController.generate_id()
+                    id_encoded = base62Converter.encode(id_origin)
+                    data.append({'original_id': id_origin, 'short_id': id_encoded, 'url': url})
+        print("inserted urls: ", data)
+        if len(data) != 0:
+            self.collection_urls.insert_many(data)        
 
     def delete_url(self, short_id):
         query = { "short_id": short_id }
