@@ -12,7 +12,7 @@ class ApiHandler(object):
         self.collection_urls = self.db.Urls
 
     def get_keys(self):
-        documents = self.collection_urls.find({})
+        documents = self.collection_urls.find({}).sort("original_id",pymongo.ASCENDING)
         keys = []
         for document in documents:
           keys.append(document['short_id'])
@@ -34,7 +34,7 @@ class ApiHandler(object):
         id_encoded = base62Converter.encode(id_origin)
         print("id: ", id_origin)
         print("encoded id: ", id_encoded)
-        
+
         # url_formated = self.format_short_url(id_encoded, url)
         data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
         self.collection_urls.insert_one(data)
