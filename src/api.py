@@ -1,3 +1,6 @@
+# Flask library is used to route APIs
+# Reference: https://flask.palletsprojects.com/en/2.2.x/quickstart/
+
 from flask import Flask
 from flask import request
 from flask_cors import CORS, cross_origin
@@ -65,6 +68,8 @@ def uodate_url(url_id):
     url = get_dict['url']
 
     if apiHandler.verify_url(url):
+        if(apiHandler.detect_duplicates(url)):
+            return "Error: URL already exists", 400
         apiHandler.edit_url(url_id, url)
         return "URL Updated", 200
     else:
