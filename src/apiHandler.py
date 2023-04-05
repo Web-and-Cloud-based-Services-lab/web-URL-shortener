@@ -59,7 +59,7 @@ class ApiHandler(object):
 
     def verify_url(self, url):
         # set the regex pattern to validate url
-        url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+        url_pattern = "^(?:(http|https)://)?(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
         # compile the regex pattern and returns a regex pattern object
         url_object = re.compile(url_pattern)
         # check the validation of the url    
