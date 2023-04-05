@@ -1,13 +1,13 @@
 import pymongo
 import json
 import re
+from dbClient import mongo_client
 from idController import idController
 from base62Converter import base62Converter
 
 class ApiHandler(object):
     def __init__(self):
-        self.client = pymongo.MongoClient('127.0.0.1',27017)
-
+        self.client = mongo_client
         self.db = self.client.url_shortener
         self.collection_urls = self.db.Urls
 
@@ -30,9 +30,13 @@ class ApiHandler(object):
         return url
     
     def create_url(self, url):
-        id_encoded = self.generate_id()
+        id_origin = idController.generate_id()
+        id_encoded = base62Converter.encode(id_origin)
+        print("id: ", id_origin)
+        print("encoded id: ", id_encoded)
+        
         # url_formated = self.format_short_url(id_encoded, url)
-        data = {'short_id': id_encoded, 'url': url}
+        data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
         self.collection_urls.insert_one(data)
 
         return id_encoded
@@ -52,13 +56,6 @@ class ApiHandler(object):
     def format_short_url(self, id, url):
         http_format = url.split('://', 1)[0]
         return http_format + "://" + id + ".com" 
-
-    def generate_id(self):
-        id_origin = idController.generate_id()
-        id_encoded = base62Converter.encode(id_origin)
-        print("id: ", id_origin)
-        print("encoded id: ", id_encoded)
-        return id_encoded
 
     def verify_url(self, url):
         # set the regex pattern to validate url
