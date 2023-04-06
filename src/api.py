@@ -44,9 +44,10 @@ def post_url():
         get_dict = get_data.to_dict()
         url = get_dict['url']
         if(apiHandler.verify_url(url)): # check if url is valid
-            if(apiHandler.detect_duplicates(url)): # check if url already exist
-                return "Error: URL already exists", 400
-            
+            duplicates = apiHandler.detect_duplicates(url)
+            if(duplicates['exists']): # check if url already exist
+                response = "Error: URL already exists. Corresponding ID: " + duplicates['short_id'] # show the corresponding id
+                return response, 400
             short_id = apiHandler.create_url(url) # add url to database and get the id 
             return short_id, 201
         else:
@@ -75,8 +76,10 @@ def update_url(url_id):
     url = get_dict['url']
 
     if apiHandler.verify_url(url):
-        if(apiHandler.detect_duplicates(url)):
-            return "Error: URL already exists", 400
+        duplicates = apiHandler.detect_duplicates(url)
+        if(duplicates['exists']):
+            response = "Error: URL already exists. Corresponding ID: " + duplicates['short_id']
+            return response, 400
         apiHandler.edit_url(url_id, url)
         return "URL Updated", 200
     else:

@@ -39,8 +39,8 @@ class ApiHandler(object):
     def create_url(self, url):
         id_origin = idController.generate_id()
         id_encoded = base62Converter.encode(id_origin)
-        print("id: ", id_origin)
-        print("encoded id: ", id_encoded)
+        print("id: ", id_origin, " encoded id: ", id_encoded)
+        print("url: ", url)
 
         data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
         self.collection_urls.insert_one(data)
@@ -54,7 +54,8 @@ class ApiHandler(object):
         # reference: https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script
         for url in tqdm(urls):
             if self.verify_url(url):
-                if not self.detect_duplicates(url):
+                duplicate = self.detect_duplicates(url)
+                if not duplicate['exists']:
                     id_origin = idController.generate_id()
                     id_encoded = base62Converter.encode(id_origin)
                     data.append({'original_id': id_origin, 'short_id': id_encoded, 'url': url})
@@ -90,8 +91,8 @@ class ApiHandler(object):
         documents = self.collection_urls.find({})
         for document in documents:
           if document['url'] == url:
-              return True
-        return False
+              return {"exists": True, "short_id": document['short_id']}
+        return {"exists": False}
 
 apiHandler = ApiHandler()
 
