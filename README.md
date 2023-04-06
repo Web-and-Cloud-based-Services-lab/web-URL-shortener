@@ -13,9 +13,9 @@
 **Additional Features:**
 - ID generation controller
 - Base10 to Base 62 converter
-- URL validation
-- Reuse deleted IDs
-- Duplicate check 
+- URL validation（checked at Create and Update）
+- Duplicate check（checked at Create and Update）
+- Reuse deleted IDs 
 - Connected with Database (MongoDB)
 - A dataset with more than 100 thousands URLs (can choose the range of records to be added into database)
 

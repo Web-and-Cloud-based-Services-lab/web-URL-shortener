@@ -1,3 +1,7 @@
+# controls ID generation
+# A freelist keeps tracking reusable ids
+# next tracks the next id can be used if freelist is empty
+
 from dbClient import mongo_client
 
 class IdController(object):
@@ -18,6 +22,7 @@ class IdController(object):
             print("init next: ", self.next)
             self.freelist = self.generate_freelist(ids)
             print("init freelist: ", self.freelist)
+
             
     def generate_freelist(self, ids):
         ids_set = set(ids)
