@@ -11,7 +11,7 @@
 
 
 **Additional Features:**
-- ID generation controller
+- ID generator
 - Base10 to Base 62 converter
 - URL validation（checked at Create and Update）
 - Duplicate check（checked at Create and Update）
