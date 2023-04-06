@@ -34,7 +34,7 @@ def get_url(url_id):
         message = "Error: URL id NOT FOUND"
         return {"message":message}, 404
     message = "URL successfully retrieved"
-    return {"message":message, "url": url}, 301
+    return {"message":message, "data":{"url": url}}, 301
 
 # A url can be added to the database only if:
 # 1. the url is valid
@@ -50,11 +50,11 @@ def post_url():
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
                 message = "Error: URL already exists."
-                identity = duplicates['short_id']
-                return {"message": message, "short_id": identity }, 400
+                short_id = duplicates['short_id']
+                return {"message": message, "data":{"short_id": short_id} }, 400
             short_id = apiHandler.create_url(url) # add url to database and get the id 
             message = "URL successfully created"
-            return {"message": message, "short_id": short_id}, 201
+            return {"message": message, "data": {"short_id": short_id}}, 201
         else:
             message = "Error: Invalid URL"
             return {"message": message}, 400
@@ -89,10 +89,10 @@ def update_url(url_id):
         if(duplicates['exists']):
             message = "Error: URL already exists."
             identity = duplicates['short_id']
-            return {"message": message, "short_id": identity }, 400
+            return {"message": message, "data": {"short_id": identity} }, 400
         origin_url = apiHandler.edit_url(url_id, url)
         message = "URL Updated."
-        return {"message": message, "old_url": origin_url, "new_url": url}, 200
+        return {"message": message, "data": {"old_url": origin_url, "new_url": url}}, 200
     else:
         message = "Invalid URL to update"
         return {"message": message}, 400
