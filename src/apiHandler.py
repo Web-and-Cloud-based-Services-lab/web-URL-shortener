@@ -6,7 +6,7 @@ import json
 import re
 from tqdm import tqdm
 from dbClient import mongo_client
-from idController import idController
+from idGenerator import idGenerator
 from base62Converter import base62Converter
 
 class ApiHandler(object):
@@ -37,7 +37,7 @@ class ApiHandler(object):
     # get the id from id generator and encoded by base62 converter
     # insert the record into database 
     def create_url(self, url):
-        id_origin = idController.generate_id()
+        id_origin = idGenerator.generate_id()
         id_encoded = base62Converter.encode(id_origin)
         print("id: ", id_origin, " encoded id: ", id_encoded)
         print("url: ", url)
@@ -49,26 +49,21 @@ class ApiHandler(object):
     
     # only used at initiation for multiple data insertion
     def create_many_urls(self, urls):
-        data = []
         # tqdm is a library to show progress bar
         # reference: https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script
         for url in tqdm(urls):
             if self.verify_url(url):
                 duplicate = self.detect_duplicates(url)
                 if not duplicate['exists']:
-                    id_origin = idController.generate_id()
+                    id_origin = idGenerator.generate_id()
                     id_encoded = base62Converter.encode(id_origin)
-                    data.append({'original_id': id_origin, 'short_id': id_encoded, 'url': url})
-        if len(data) != 0:
-            self.collection_urls.insert_many(data)        
+                    data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
+                    self.collection_urls.insert_one(data)       
 
     # delete a record of url based on id
-    # the released id is added to freelist
     def delete_url(self, short_id):
         query = { "short_id": short_id }
         self.collection_urls.delete_one(query)
-        id_origin = base62Converter.decode(short_id)
-        idController.add_to_freelist(id_origin)
 
     # update url based on id
     def edit_url(self, short_id, url):
