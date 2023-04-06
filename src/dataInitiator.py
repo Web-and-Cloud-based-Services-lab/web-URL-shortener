@@ -1,3 +1,5 @@
+# Used for inserting sample data into database
+
 from apiHandler import apiHandler
 import pandas as pd
 
