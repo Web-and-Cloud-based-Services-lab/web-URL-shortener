@@ -8,6 +8,14 @@ from flask import request
 from flask_cors import CORS, cross_origin
 from apiHandler import apiHandler
 
+ERROR_INVALID_REQUEST = "Error: Invalid request"
+ERROR_ID_NOT_FOUND = "Error: URL id NOT FOUND"
+ERROR_URL_EXISTS = "Error: URL already exists"
+ERROR_URL_INVALID = "Error: Invalid URL"
+SUCCESS_RETRIEVE = "URL successfully retrieved"
+SUCCESS_CREATE = "URL successfully created"
+SUCCESS_DELETE = "URL successfully deleted"
+SUCCESS_UPDATE = "URL successfully updated"
 
 app = Flask(__name__)
 cors = CORS(app) # cors is added in advance to allow cors requests
@@ -23,18 +31,15 @@ def get_keys():
 @app.route('/', methods=["DELETE"])
 @cross_origin()
 def delete_index():
-    message = "Error: Invalid request"
-    return {"message":message}, 404
+    return {"message":ERROR_INVALID_REQUEST}, 404
 
 @app.route('/<string:url_id>', methods=["GET"])
 @cross_origin()
 def get_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None: # if url == None, then the id used to query does not exist
-        message = "Error: URL id NOT FOUND"
-        return {"message":message}, 404
-    message = "URL successfully retrieved"
-    return {"message":message, "data":{"url": url}}, 301
+        return {"message": ERROR_ID_NOT_FOUND}, 404
+    return {"message":SUCCESS_RETRIEVE, "data":{"url": url}}, 301
 
 # A url can be added to the database only if:
 # 1. the url is valid
@@ -49,27 +54,22 @@ def post_url():
         if(apiHandler.verify_url(url)): # check if url is valid
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
-                message = "Error: URL already exists."
                 short_id = duplicates['short_id']
-                return {"message": message, "data":{"short_id": short_id} }, 400
+                return {"message": ERROR_URL_EXISTS, "data":{"short_id": short_id} }, 400
             short_id = apiHandler.create_url(url) # add url to database and get the id 
-            message = "URL successfully created"
-            return {"message": message, "data": {"short_id": short_id}}, 201
+            return {"message": SUCCESS_CREATE, "data": {"short_id": short_id}}, 201
         else:
-            message = "Error: Invalid URL"
-            return {"message": message}, 400
+            return {"message": ERROR_URL_INVALID}, 400
 
 @app.route('/<string:url_id>', methods=["DELETE"])
 @cross_origin()
 def delete_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        message = "Error: URL id NOT FOUND"
-        return {"message": message}, 404
+        return {"message": ERROR_ID_NOT_FOUND}, 404
     else:
         apiHandler.delete_url(url_id)
-        message = "Content deleted"
-        return {"message": message}, 204
+        return {"message": SUCCESS_DELETE}, 204
 
 @app.route('/<string:url_id>', methods=["PUT"])
 @cross_origin()
@@ -77,8 +77,7 @@ def delete_url(url_id):
 def update_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        message = "Error: URL id NOT FOUND"
-        return {"message": message}, 404
+        return {"message": ERROR_ID_NOT_FOUND}, 404
     
     get_data=request.args
     get_dict = get_data.to_dict()
@@ -87,13 +86,10 @@ def update_url(url_id):
     if apiHandler.verify_url(url):
         duplicates = apiHandler.detect_duplicates(url)
         if(duplicates['exists']):
-            message = "Error: URL already exists."
             identity = duplicates['short_id']
-            return {"message": message, "data": {"short_id": identity} }, 400
+            return {"message": ERROR_URL_EXISTS, "data": {"short_id": identity} }, 400
         origin_url = apiHandler.edit_url(url_id, url)
-        message = "URL Updated."
-        return {"message": message, "data": {"old_url": origin_url, "new_url": url}}, 200
+        return {"message": SUCCESS_UPDATE, "data": {"old_url": origin_url, "new_url": url}}, 200
     else:
-        message = "Invalid URL to update"
-        return {"message": message}, 400
+        return {"message": ERROR_URL_INVALID}, 400
         
