@@ -23,15 +23,18 @@ def get_keys():
 @app.route('/', methods=["DELETE"])
 @cross_origin()
 def delete_index():
-    return "Error: Invalid request", 404
+    message = "Error: Invalid request"
+    return {"message":message}, 404
 
 @app.route('/<string:url_id>', methods=["GET"])
 @cross_origin()
 def get_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None: # if url == None, then the id used to query does not exist
-        return "Error: URL id NOT FOUND", 404
-    return url, 301
+        message = "Error: URL id NOT FOUND"
+        return {"message":message}, 404
+    message = "URL successfully retrieved"
+    return {"message":message, "url": url}, 301
 
 # A url can be added to the database only if:
 # 1. the url is valid
@@ -46,22 +49,27 @@ def post_url():
         if(apiHandler.verify_url(url)): # check if url is valid
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
-                response = "Error: URL already exists. Corresponding ID: " + duplicates['short_id'] # show the corresponding id
-                return response, 400
+                message = "Error: URL already exists."
+                identity = duplicates['short_id']
+                return {"message": message, "short_id": identity }, 400
             short_id = apiHandler.create_url(url) # add url to database and get the id 
-            return short_id, 201
+            message = "URL successfully created"
+            return {"message": message, "short_id": short_id}, 201
         else:
-            return "Error: Invalid URL", 400
+            message = "Error: Invalid URL"
+            return {"message": message}, 400
 
 @app.route('/<string:url_id>', methods=["DELETE"])
 @cross_origin()
 def delete_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        return "Error: URL id NOT FOUND", 404
+        message = "Error: URL id NOT FOUND"
+        return {"message": message}, 404
     else:
         apiHandler.delete_url(url_id)
-        return "Content deleted", 204
+        message = "Content deleted"
+        return {"message": message}, 204
 
 @app.route('/<string:url_id>', methods=["PUT"])
 @cross_origin()
@@ -69,7 +77,8 @@ def delete_url(url_id):
 def update_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
-        return "Error: URL id NOT FOUND", 404
+        message = "Error: URL id NOT FOUND"
+        return {"message": message}, 404
     
     get_data=request.args
     get_dict = get_data.to_dict()
@@ -78,10 +87,13 @@ def update_url(url_id):
     if apiHandler.verify_url(url):
         duplicates = apiHandler.detect_duplicates(url)
         if(duplicates['exists']):
-            response = "Error: URL already exists. Corresponding ID: " + duplicates['short_id']
-            return response, 400
-        apiHandler.edit_url(url_id, url)
-        return "URL Updated", 200
+            message = "Error: URL already exists."
+            identity = duplicates['short_id']
+            return {"message": message, "short_id": identity }, 400
+        origin_url = apiHandler.edit_url(url_id, url)
+        message = "URL Updated."
+        return {"message": message, "old_url": origin_url, "new_url": url}, 200
     else:
-        return "Invalid URL to update", 400
+        message = "Invalid URL to update"
+        return {"message": message}, 400
         
