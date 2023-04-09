@@ -57,7 +57,7 @@ def post_url():
                 short_id = duplicates['short_id']
                 return {"message": ERROR_URL_EXISTS, "data":{"short_id": short_id} }, 400
             short_id = apiHandler.create_url(url) # add url to database and get the id 
-            return {"message": SUCCESS_CREATE, "data": {"short_id": short_id}}, 201
+            return {"message": SUCCESS_CREATE, "data": {"short_id": short_id, "url": url}}, 201
         else:
             return {"message": ERROR_URL_INVALID}, 400
 
@@ -89,7 +89,7 @@ def update_url(url_id):
             identity = duplicates['short_id']
             return {"message": ERROR_URL_EXISTS, "data": {"short_id": identity} }, 400
         origin_url = apiHandler.edit_url(url_id, url)
-        return {"message": SUCCESS_UPDATE, "data": {"old_url": origin_url, "new_url": url}}, 200
+        return {"message": SUCCESS_UPDATE, "data": {"short_id":url_id, "old_url": origin_url, "new_url": url}}, 200
     else:
         return {"message": ERROR_URL_INVALID}, 400
         
