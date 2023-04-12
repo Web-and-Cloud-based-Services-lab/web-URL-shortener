@@ -19,6 +19,20 @@
 - Connected with Database (MongoDB)
 - A dataset with more than 100 thousands URLs (can choose the range of records to be added into database)
 
+### Reference
+**URL Validation Regex:**
+The design of valid regex pattern is based the idea offered by YUVRAJ CHANDRA.
+The pattern is modified to also supports urls not starting with `http(s)`
+[link](https://www.makeuseof.com/regular-expressions-validate-url/)
+
+**Base10 to Base62 algorithm:**
+The implementation of the Base10 to Base62 converter is based on the ideas and pseudocode provided by Marcel Jackwerth
+[link](https://stackoverflow.com/questions/742013/how-do-i-create-a-url-shortener)
+
+**Progress Bar:**
+We refer to the syntax of tqdm (a library that supports progress bar) in one of the answers from stackoverflow.
+[link](https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script)
+
 ## Prerequisites
 
 1. `Docker`  installed
