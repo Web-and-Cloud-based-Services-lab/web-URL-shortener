@@ -2,6 +2,7 @@
 # Defines the logics of CRUD
 
 import pymongo
+import requests
 import json
 import re
 from tqdm import tqdm
@@ -16,8 +17,9 @@ class ApiHandler(object):
         self.collection_urls = self.db.Urls
 
     # retrieve all keys (id in use) stored in database in the ascending order
-    def get_keys(self):
-        documents = self.collection_urls.find({}).sort("original_id",pymongo.ASCENDING)
+    def get_keys(self, username):
+        query = { "username": username }
+        documents = self.collection_urls.find(query).sort("original_id",pymongo.ASCENDING)
         keys = []
         for document in documents:
           keys.append(document['short_id'])
@@ -36,13 +38,13 @@ class ApiHandler(object):
     
     # get the id from id generator and encoded by base62 converter
     # insert the record into database 
-    def create_url(self, url):
+    def create_url(self, url, username):
         id_origin = idGenerator.generate_id()
         id_encoded = base62Converter.encode(id_origin)
         print("id: ", id_origin, " encoded id: ", id_encoded)
         print("url: ", url)
 
-        data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
+        data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url, 'username': username}
         self.collection_urls.insert_one(data)
 
         return id_encoded
@@ -91,6 +93,17 @@ class ApiHandler(object):
           if document['url'] == url:
               return {"exists": True, "short_id": document['short_id']}
         return {"exists": False}
+    
+    def verify_user(self,jwt):
+        URL = "http://127.0.0.1:7777/users/validation"
+        r = requests.get(url = URL, params = {'jwt': jwt})
+        status=r.status_code
+        data = r.json()
+        if status == 200:
+            username = data['data']['name']
+            return {"valid": True, "username": username}
+        else:
+            return {"valid": False, "error_type": data['type']}
 
 apiHandler = ApiHandler()
 

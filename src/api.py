@@ -12,6 +12,7 @@ ERROR_INVALID_REQUEST = "Error: Invalid request"
 ERROR_ID_NOT_FOUND = "Error: URL id NOT FOUND"
 ERROR_URL_EXISTS = "Error: URL already exists"
 ERROR_URL_INVALID = "Error: Invalid URL"
+ERROR_FORBIDDEN = "Error: Forbidden"
 SUCCESS_RETRIEVE = "URL successfully retrieved"
 SUCCESS_CREATE = "URL successfully created"
 SUCCESS_DELETE = "URL successfully deleted"
@@ -24,7 +25,12 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/', methods=["GET"])
 @cross_origin()
 def get_keys():
-    keys = apiHandler.get_keys()
+    get_data=request.args.to_dict() 
+    jwt = get_data['jwt']
+    auth_res = apiHandler.verify_user(jwt)
+    if not auth_res['valid']:
+        return {"message":ERROR_FORBIDDEN}, 403
+    keys = apiHandler.get_keys(auth_res['username'])
     return keys
 
 # deletion without an id is not allowed
@@ -48,15 +54,21 @@ def get_url(url_id):
 @cross_origin()
 def post_url():
     if request.method == 'POST':
-        get_data=request.args # get_data gets the body of post request
-        get_dict = get_data.to_dict()
-        url = get_dict['url']
+        get_data=request.args.to_dict()
+        url = get_data['url']
+        jwt = get_data['jwt']
+
+        auth_res = apiHandler.verify_user(jwt)
+        if not auth_res['valid']:
+            return {"message":ERROR_FORBIDDEN}, 403
+        username = auth_res['username']
+        
         if(apiHandler.verify_url(url)): # check if url is valid
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
                 short_id = duplicates['short_id']
                 return {"message": ERROR_URL_EXISTS, "data":{"short_id": short_id} }, 400
-            short_id = apiHandler.create_url(url) # add url to database and get the id 
+            short_id = apiHandler.create_url(url, username) # add url to database and get the id 
             return {"message": SUCCESS_CREATE, "data": {"short_id": short_id, "url": url}}, 201
         else:
             return {"message": ERROR_URL_INVALID}, 400
