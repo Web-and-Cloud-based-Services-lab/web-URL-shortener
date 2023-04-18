@@ -3,8 +3,7 @@
 # The use of flask references the official documentation of flask:
 # https://flask.palletsprojects.com/en/2.2.x/quickstart/
 
-from flask import Flask
-from flask import request
+from flask import Flask, request, g
 from flask_cors import CORS, cross_origin
 from apiHandler import apiHandler
 
@@ -22,26 +21,41 @@ app = Flask(__name__)
 cors = CORS(app) # cors is added in advance to allow cors requests
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-@app.route('/', methods=["GET"])
-@cross_origin()
-def get_keys():
+ENDPOINT_WITHOUT_AUTH = ['delete_index', 'get_url']
+
+# @cross_origin() can not be added infront of endpoints anymore, 
+# otherwise the endpoints will not be called after before_request 
+
+@app.before_request
+def verify_user():
+    if request.endpoint in ENDPOINT_WITHOUT_AUTH:
+        return None
     get_data=request.args.to_dict() 
     jwt = get_data['jwt']
     auth_res = apiHandler.verify_user(jwt)
-    if not auth_res['valid']:
+    if not auth_res['valid'] or auth_res['username'] is None:
         return {"message":ERROR_FORBIDDEN}, 403
-    keys = apiHandler.get_keys(auth_res['username'])
-    return keys
+    g.username = auth_res['username']
+
+@app.after_request
+def after_request(response):
+    # to enable cors response
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
+@app.route('/', methods=["GET"])
+def get_keys():
+    keys = apiHandler.get_keys(g.username)
+    return keys, 200
 
 # deletion without an id is not allowed
 @app.route('/', methods=["DELETE"])
-@cross_origin()
 def delete_index():
     return {"message":ERROR_INVALID_REQUEST}, 404
 
 @app.route('/<string:url_id>', methods=["GET"])
-@cross_origin()
 def get_url(url_id):
+    print("get_url called")
     url = apiHandler.get_url(url_id)
     if url == None: # if url == None, then the id used to query does not exist
         return {"message": ERROR_ID_NOT_FOUND}, 404
@@ -51,30 +65,22 @@ def get_url(url_id):
 # 1. the url is valid
 # 2. the url does not exist in the database already
 @app.route('/', methods=["POST"])
-@cross_origin()
 def post_url():
     if request.method == 'POST':
         get_data=request.args.to_dict()
         url = get_data['url']
-        jwt = get_data['jwt']
 
-        auth_res = apiHandler.verify_user(jwt)
-        if not auth_res['valid']:
-            return {"message":ERROR_FORBIDDEN}, 403
-        username = auth_res['username']
-        
         if(apiHandler.verify_url(url)): # check if url is valid
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
                 short_id = duplicates['short_id']
                 return {"message": ERROR_URL_EXISTS, "data":{"short_id": short_id} }, 400
-            short_id = apiHandler.create_url(url, username) # add url to database and get the id 
+            short_id = apiHandler.create_url(url, g.username) # add url to database and get the id 
             return {"message": SUCCESS_CREATE, "data": {"short_id": short_id, "url": url}}, 201
         else:
             return {"message": ERROR_URL_INVALID}, 400
 
 @app.route('/<string:url_id>', methods=["DELETE"])
-@cross_origin()
 def delete_url(url_id):
     url = apiHandler.get_url(url_id)
     if url == None:
@@ -84,7 +90,6 @@ def delete_url(url_id):
         return {"message": SUCCESS_DELETE}, 204
 
 @app.route('/<string:url_id>', methods=["PUT"])
-@cross_origin()
 # existence of id and the validity of url are checked first
 def update_url(url_id):
     url = apiHandler.get_url(url_id)
@@ -104,4 +109,5 @@ def update_url(url_id):
         return {"message": SUCCESS_UPDATE, "data": {"short_id":url_id, "old_url": origin_url, "new_url": url}}, 200
     else:
         return {"message": ERROR_URL_INVALID}, 400
-        
+
+
