@@ -11,6 +11,7 @@
 
 
 **Additional Features:**
+- user authentication included
 - ID generator
 - Base10 to Base 62 converter
 - URL validation（checked at Create and Update）
@@ -69,10 +70,10 @@ $ python3 run.py
 ## Server API
 | API | Parameter | Method | Example| Description |
 | :--- | :---- | :---: |:---|:---|
-| / |/ |  GET   | 127.0.0.1:5000/ | List Keys (short url id)|
+| / |[?jwt=...] |  GET   | 127.0.0.1:5000/ | List Keys(short url id) owned by the user|
 /:id |/ |GET|127.0.0.1:5000/cwt|Use short id to retrieve original URL|
-/:id|query parameter: [?url=...]|PUT|127.0.0.1:5000/?url=http://fuzz.com| Update existing URL by id|
+/:id|[?url=...&jwt=...]|PUT|127.0.0.1:5000/?url=http://fuzz.com| Update existing URL by id|
 / | /| DELETE| 127.0.0.1:5000/ | Invalid Request| 
-/:id |/| DELETE | 127.0.0.1:5000/cwt| Delete existing URL by id|
-/ |query parameter: [?url=...] | POST  | 127.0.0.1:5000/?url=http://foo.com |Add a new outlet into the database|
+/:id |[?jwt=...]| DELETE | 127.0.0.1:5000/cwt| Delete existing URL by id|
+/ |[?url=...&jwt=...] | POST  | 127.0.0.1:5000/?url=http://foo.com |Add a new outlet into the database|
 
