@@ -32,9 +32,7 @@ class ApiHandler(object):
         document = self.collection_urls.find_one(query)
         if document == None:
             return None
-        
-        url = document['url']
-        return url
+        return {"url": document['url'], "username": document['username']}
     
     # get the id from id generator and encoded by base62 converter
     # insert the record into database 
@@ -70,12 +68,8 @@ class ApiHandler(object):
     # update url based on id
     def edit_url(self, short_id, url):
         query = { "short_id": short_id }
-        document = self.collection_urls.find_one(query)
-        origin_url = document['url']
         new_value = { "$set": { "url": url } }
-
         self.collection_urls.update_one(query, new_value)
-        return origin_url
 
     # verify if URL follows the regex pattern
     def verify_url(self, url):

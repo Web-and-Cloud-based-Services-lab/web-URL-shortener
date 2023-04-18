@@ -30,8 +30,7 @@ ENDPOINT_WITHOUT_AUTH = ['delete_index', 'get_url']
 def verify_user():
     if request.endpoint in ENDPOINT_WITHOUT_AUTH:
         return None
-    get_data=request.args.to_dict() 
-    jwt = get_data['jwt']
+    jwt = request.args.to_dict()['jwt']
     auth_res = apiHandler.verify_user(jwt)
     if not auth_res['valid'] or auth_res['username'] is None:
         return {"message":ERROR_FORBIDDEN}, 403
@@ -55,11 +54,10 @@ def delete_index():
 
 @app.route('/<string:url_id>', methods=["GET"])
 def get_url(url_id):
-    print("get_url called")
-    url = apiHandler.get_url(url_id)
-    if url == None: # if url == None, then the id used to query does not exist
+    record = apiHandler.get_url(url_id)
+    if record == None: # if url == None, then the id used to query does not exist
         return {"message": ERROR_ID_NOT_FOUND}, 404
-    return {"message":SUCCESS_RETRIEVE, "data":{"url": url}}, 301
+    return {"message":SUCCESS_RETRIEVE, "data":{"url": record['url']}}, 301
 
 # A url can be added to the database only if:
 # 1. the url is valid
@@ -67,14 +65,12 @@ def get_url(url_id):
 @app.route('/', methods=["POST"])
 def post_url():
     if request.method == 'POST':
-        get_data=request.args.to_dict()
-        url = get_data['url']
+        url = request.args.to_dict()['url']
 
         if(apiHandler.verify_url(url)): # check if url is valid
             duplicates = apiHandler.detect_duplicates(url)
             if(duplicates['exists']): # check if url already exist
-                short_id = duplicates['short_id']
-                return {"message": ERROR_URL_EXISTS, "data":{"short_id": short_id} }, 400
+                return {"message": ERROR_URL_EXISTS, "data":{"short_id": duplicates['short_id']} }, 400
             short_id = apiHandler.create_url(url, g.username) # add url to database and get the id 
             return {"message": SUCCESS_CREATE, "data": {"short_id": short_id, "url": url}}, 201
         else:
@@ -82,31 +78,31 @@ def post_url():
 
 @app.route('/<string:url_id>', methods=["DELETE"])
 def delete_url(url_id):
-    url = apiHandler.get_url(url_id)
-    if url == None:
+    record = apiHandler.get_url(url_id)
+    if record == None:
         return {"message": ERROR_ID_NOT_FOUND}, 404
-    else:
-        apiHandler.delete_url(url_id)
-        return {"message": SUCCESS_DELETE}, 204
+    if record['username'] is None or record['username'] != g.username:
+        return {"message":ERROR_FORBIDDEN}, 403
+    apiHandler.delete_url(url_id)
+    return {"message": SUCCESS_DELETE}, 204
 
 @app.route('/<string:url_id>', methods=["PUT"])
 # existence of id and the validity of url are checked first
 def update_url(url_id):
-    url = apiHandler.get_url(url_id)
-    if url == None:
+    record = apiHandler.get_url(url_id)
+    if record == None:
         return {"message": ERROR_ID_NOT_FOUND}, 404
-    
-    get_data=request.args
-    get_dict = get_data.to_dict()
-    url = get_dict['url']
+    if record['username'] is None or record['username'] != g.username:
+        return {"message":ERROR_FORBIDDEN}, 403
 
-    if apiHandler.verify_url(url):
-        duplicates = apiHandler.detect_duplicates(url)
+    new_url=request.args.to_dict()['url']
+
+    if apiHandler.verify_url(new_url):
+        duplicates = apiHandler.detect_duplicates(new_url)
         if(duplicates['exists']):
-            identity = duplicates['short_id']
-            return {"message": ERROR_URL_EXISTS, "data": {"short_id": identity} }, 400
-        origin_url = apiHandler.edit_url(url_id, url)
-        return {"message": SUCCESS_UPDATE, "data": {"short_id":url_id, "old_url": origin_url, "new_url": url}}, 200
+            return {"message": ERROR_URL_EXISTS, "data": {"short_id": duplicates['short_id']} }, 400
+        apiHandler.edit_url(url_id, new_url)
+        return {"message": SUCCESS_UPDATE, "data": {"short_id":url_id, "old_url": record['url'], "new_url": new_url}}, 200
     else:
         return {"message": ERROR_URL_INVALID}, 400
 
