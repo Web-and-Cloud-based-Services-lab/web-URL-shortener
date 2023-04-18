@@ -93,6 +93,7 @@ class ApiHandler(object):
         r = requests.get(url = URL, params = {'jwt': jwt})
         status=r.status_code
         data = r.json()
+        print("received: ", data)
         if status == 200:
             username = data['data']['name']
             return {"valid": True, "username": username}
