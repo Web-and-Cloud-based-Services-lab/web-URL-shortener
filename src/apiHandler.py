@@ -2,6 +2,7 @@
 # Defines the logics of CRUD
 
 import pymongo
+import requests
 import json
 import re
 from tqdm import tqdm
@@ -16,8 +17,9 @@ class ApiHandler(object):
         self.collection_urls = self.db.Urls
 
     # retrieve all keys (id in use) stored in database in the ascending order
-    def get_keys(self):
-        documents = self.collection_urls.find({}).sort("original_id",pymongo.ASCENDING)
+    def get_keys(self, username):
+        query = { "username": username }
+        documents = self.collection_urls.find(query).sort("original_id",pymongo.ASCENDING)
         keys = []
         for document in documents:
           keys.append(document['short_id'])
@@ -30,19 +32,17 @@ class ApiHandler(object):
         document = self.collection_urls.find_one(query)
         if document == None:
             return None
-        
-        url = document['url']
-        return url
+        return {"url": document['url'], "username": document['username']}
     
     # get the id from id generator and encoded by base62 converter
     # insert the record into database 
-    def create_url(self, url):
+    def create_url(self, url, username):
         id_origin = idGenerator.generate_id()
         id_encoded = base62Converter.encode(id_origin)
         print("id: ", id_origin, " encoded id: ", id_encoded)
         print("url: ", url)
 
-        data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
+        data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url, 'username': username}
         self.collection_urls.insert_one(data)
 
         return id_encoded
@@ -68,12 +68,8 @@ class ApiHandler(object):
     # update url based on id
     def edit_url(self, short_id, url):
         query = { "short_id": short_id }
-        document = self.collection_urls.find_one(query)
-        origin_url = document['url']
         new_value = { "$set": { "url": url } }
-
         self.collection_urls.update_one(query, new_value)
-        return origin_url
 
     # verify if URL follows the regex pattern
     def verify_url(self, url):
@@ -91,6 +87,17 @@ class ApiHandler(object):
           if document['url'] == url:
               return {"exists": True, "short_id": document['short_id']}
         return {"exists": False}
+    
+    def verify_user(self,jwt):
+        URL = "http://127.0.0.1:7777/users/validation"
+        r = requests.get(url = URL, params = {'jwt': jwt})
+        status=r.status_code
+        data = r.json()
+        if status == 200:
+            username = data['data']['name']
+            return {"valid": True, "username": username}
+        else:
+            return {"valid": False, "error_type": data['type']}
 
 apiHandler = ApiHandler()
 
