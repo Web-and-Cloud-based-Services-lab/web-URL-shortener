@@ -2,4 +2,7 @@
 
 import pymongo 
 
-mongo_client = pymongo.MongoClient('127.0.0.1',27017)
+username = 'url_shortener'
+password = 'url_shortener_passwor'
+
+mongo_client = pymongo.MongoClient('mongodb://{user}:{pwd}@localhost:27017/admin'.format(user = username, pwd = password))
