@@ -33,7 +33,7 @@ def verify_user():
     jwt = request.args.to_dict()['jwt']
     auth_res = apiHandler.verify_user(jwt)
     if not auth_res['valid'] or auth_res['username'] is None:
-        return {"message":ERROR_FORBIDDEN}, 403
+        return {"error":ERROR_FORBIDDEN, "message": auth_res['error_type']}, 403
     g.username = auth_res['username']
 
 @app.after_request
