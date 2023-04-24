@@ -39,6 +39,30 @@ We refer to the syntax of tqdm (a library that supports progress bar) in one of 
 1. `Docker`  installed
 2. `Python >= 3.4`  installed
 
+
+## Docker
+
+<!-- Buid
+```shell
+docker build -t reisafriche/url-service:v3 .
+```
+
+push
+```shell
+docker push reisafriche/url-service:v3  
+``` -->
+
+pull docker image
+```shell
+docker pull reisafriche/url-service:v3
+```
+
+run docker container
+```shell
+docker run --name url-service -p 5000:5000 docker.io/reisafriche/url-service:v3
+```
+
+
 ## Build
 
 ### 1. Run the database
