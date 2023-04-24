@@ -5,7 +5,7 @@ import pymongo
 import requests
 import json
 import re
-from tqdm import tqdm
+# from tqdm import tqdm
 from dbClient import mongo_client
 from idGenerator import idGenerator
 from base62Converter import base62Converter
@@ -48,17 +48,17 @@ class ApiHandler(object):
         return id_encoded
     
     # only used at initiation for multiple data insertion
-    def create_many_urls(self, urls):
-        # tqdm is a library to show progress bar
-        # reference: https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script
-        for url in tqdm(urls):
-            if self.verify_url(url):
-                duplicate = self.detect_duplicates(url)
-                if not duplicate['exists']:
-                    id_origin = idGenerator.generate_id()
-                    id_encoded = base62Converter.encode(id_origin)
-                    data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
-                    self.collection_urls.insert_one(data)       
+    # def create_many_urls(self, urls):
+    #     # tqdm is a library to show progress bar
+    #     # reference: https://stackoverflow.com/questions/43259717/progress-bar-for-a-for-loop-in-python-script
+    #     for url in tqdm(urls):
+    #         if self.verify_url(url):
+    #             duplicate = self.detect_duplicates(url)
+    #             if not duplicate['exists']:
+    #                 id_origin = idGenerator.generate_id()
+    #                 id_encoded = base62Converter.encode(id_origin)
+    #                 data = {'original_id': id_origin, 'short_id': id_encoded, 'url': url}
+    #                 self.collection_urls.insert_one(data)       
 
     # delete a record of url based on id
     def delete_url(self, short_id):
