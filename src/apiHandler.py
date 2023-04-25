@@ -89,7 +89,8 @@ class ApiHandler(object):
         return {"exists": False}
     
     def verify_user(self,jwt):
-        URL = "http://127.0.0.1:7777/users/validation"
+        # host depend on the host url of auth-service
+        URL = "http://172.17.0.2:7777/users/validation"
         r = requests.get(url = URL, params = {'jwt': jwt})
         status=r.status_code
         data = r.json()

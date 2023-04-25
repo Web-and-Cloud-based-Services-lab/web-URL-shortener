@@ -5,4 +5,4 @@ import pymongo
 username = 'url_shortener'
 password = 'url_shortener_password'
 
-mongo_client = pymongo.MongoClient('mongodb://{user}:{pwd}@localhost:27017/admin'.format(user = username, pwd = password))
+mongo_client = pymongo.MongoClient('mongodb://{user}:{pwd}@host.docker.internal:27017/admin'.format(user = username, pwd = password))
