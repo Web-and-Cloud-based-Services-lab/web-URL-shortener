@@ -90,7 +90,7 @@ class ApiHandler(object):
     
     def verify_user(self,jwt):
         # host depend on the host url of auth-service
-        URL = "http://172.17.0.2:7777/users/validation"
+        URL = "http://host.docker.internal:7777/users/validation"
         r = requests.get(url = URL, params = {'jwt': jwt})
         status=r.status_code
         data = r.json()
