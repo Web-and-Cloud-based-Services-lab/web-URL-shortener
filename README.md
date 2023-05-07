@@ -44,22 +44,23 @@ We refer to the syntax of tqdm (a library that supports progress bar) in one of 
 
 <!-- Buid
 ```shell
-docker build -t reisafriche/url-service:v1 .
+docker buildx create --use
+docker buildx build  -t reisafriche/url-service:v2 --platform linux/amd64,linux/arm64  --push .
 ```
 
 push
 ```shell
-docker push reisafriche/url-service:v1  
+docker push reisafriche/url-service:v2  
 ``` -->
 
 <!-- pull docker image
 ```shell
-docker pull reisafriche/url-service:v1 -->
+docker pull reisafriche/url-service:v2 -->
 ```
 
 run docker container
 ```shell
-docker run --name url-service -p 5000:5000 docker.io/reisafriche/url-service:v1
+docker run --name url-service -p 5000:5000 docker.io/reisafriche/url-service:v2
 ```
 
 
